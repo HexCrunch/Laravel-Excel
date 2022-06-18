@@ -111,17 +111,12 @@ class ModelManager
              })
              ->each(function (Collection $models, string $model) use ($import) {
                  try {
-                     /* @var Model $model */
-
-                     if ($import instanceof WithUpserts) {
-                         $model::query()->upsert(
-                             $models->toArray(),
-                             $import->uniqueBy(),
-                             $import instanceof WithUpsertColumns ? $import->upsertColumns() : null
-                         );
-                     } else {
-                         $model::query()->insert($models->toArray());
-                     }
+                     /* @var Model $instance */
+                    foreach ($models as $m){
+                        $instance = new $model;
+                        $instance->fill($m);
+                        $instance->save();
+                    }
                  } catch (Throwable $e) {
                      if ($import instanceof SkipsOnError) {
                          $import->onError($e);
